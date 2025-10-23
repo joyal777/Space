@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\front\ProjectController;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,4 +15,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// Your API routes will go here
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::apiResource('projects', ProjectController::class);
+});
