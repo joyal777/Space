@@ -1,84 +1,115 @@
+<script setup lang="ts">
+import { ref } from 'vue';
+import { Head, Link, router } from '@inertiajs/vue3';
+import AppLayout from '@/Layouts/AppLayout.vue';
+import projects, { index } from '@/routes/projects';
+import { BreadcrumbItem } from '@/types';
+
+const project_name = ref('');
+const project_title = ref('');
+const project_description = ref('');
+const project_status = ref('pending');
+const start_date = ref('');
+const end_date = ref('');
+
+const statusOptions = {
+    pending: 'Pending',
+    in_progress: 'In Progress',
+    completed: 'Completed',
+    on_hold: 'On Hold',
+    cancelled: 'Cancelled',
+};
+
+const submitForm = () => {
+    router.post('/projects', {
+        project_name: project_name.value,
+        project_title: project_title.value,
+        project_description: project_description.value,
+        project_status: project_status.value,
+        start_date: start_date.value,
+        end_date: end_date.value,
+    });
+};
+
+const breadcrumbItems: BreadcrumbItem[] = [
+    {
+        title: 'Projects',
+        href: index().url, // or route('projects.index')
+    },
+];
+</script>
+
 <template>
-  <div>
-    <h1 class="text-2xl font-bold mb-6">Create New Project</h1>
+  <AppLayout :breadcrumbs="breadcrumbItems">
+    <Head title="Create Project" />
+    <Link
+                    :href="index().url"
+                    class="bg-grey-600 text-black px-4 py-2 rounded-lg"
+                >
+                    Go back
+                </Link>
+    <div class="max-w-3xl mx-auto my-10">
+      <!-- Card -->
+      <div class="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 p-8 rounded-xl shadow-lg text-white">
+        <h1 class="text-3xl font-bold mb-6 text-center">Create New Project</h1>
 
-    <form @submit.prevent="submit">
-      <div class="grid grid-cols-1 gap-6">
-        <div>
-          <label class="block text-sm font-medium text-gray-700">Project Name *</label>
-          <input v-model="form.project_name" type="text" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" required>
-          <div v-if="form.errors.project_name" class="text-red-500 text-sm mt-1">{{ form.errors.project_name }}</div>
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium text-gray-700">Project Title</label>
-          <input v-model="form.project_title" type="text" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
-          <div v-if="form.errors.project_title" class="text-red-500 text-sm mt-1">{{ form.errors.project_title }}</div>
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium text-gray-700">Description</label>
-          <textarea v-model="form.project_description" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"></textarea>
-          <div v-if="form.errors.project_description" class="text-red-500 text-sm mt-1">{{ form.errors.project_description }}</div>
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium text-gray-700">Status</label>
-          <select v-model="form.project_status" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
-            <option v-for="(label, value) in statusOptions" :key="value" :value="value">{{ label }}</option>
-          </select>
-          <div v-if="form.errors.project_status" class="text-red-500 text-sm mt-1">{{ form.errors.project_status }}</div>
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium text-gray-700">Project Update</label>
-          <textarea v-model="form.project_update" rows="2" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"></textarea>
-          <div v-if="form.errors.project_update" class="text-red-500 text-sm mt-1">{{ form.errors.project_update }}</div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-4">
+        <div class="space-y-5">
+          <!-- Project Name -->
           <div>
-            <label class="block text-sm font-medium text-gray-700">Start Date</label>
-            <input v-model="form.start_date" type="date" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2">
-            <div v-if="form.errors.start_date" class="text-red-500 text-sm mt-1">{{ form.errors.start_date }}</div>
+            <label class="block mb-1 font-semibold">Project Name *</label>
+            <input v-model="project_name" type="text"
+                   class="w-full px-4 py-2 rounded-lg border-2 border-white bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                   placeholder="Enter project name" />
           </div>
 
+          <!-- Project Title -->
           <div>
-            <label class="block text-sm font-medium text-gray-700">End Date</label>
-            <input v-model="form.end_date" type="text" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" placeholder="Date or text">
-            <div v-if="form.errors.end_date" class="text-red-500 text-sm mt-1">{{ form.errors.end_date }}</div>
+            <label class="block mb-1 font-semibold">Project Title</label>
+            <input v-model="project_title" type="text"
+                   class="w-full px-4 py-2 rounded-lg border-2 border-white bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-300"
+                   placeholder="Optional title" />
           </div>
-        </div>
 
-        <div class="flex justify-end space-x-3">
-          <Link :href="route('projects.index')" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Cancel</Link>
-          <button type="submit" :disabled="form.processing" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:opacity-50">
-            {{ form.processing ? 'Creating...' : 'Create Project' }}
-          </button>
+          <!-- Project Description -->
+          <div>
+            <label class="block mb-1 font-semibold">Description</label>
+            <textarea v-model="project_description" rows="3"
+                      class="w-full px-4 py-2 rounded-lg border-2 border-white bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-pink-300"
+                      placeholder="Describe your project"></textarea>
+          </div>
+
+          <!-- Status -->
+          <div>
+            <label class="block mb-1 font-semibold">Status</label>
+            <select v-model="project_status"
+                    class="w-full px-4 py-2 rounded-lg border-2 border-white bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-300">
+              <option v-for="(label, key) in statusOptions" :key="key" :value="key">{{ label }}</option>
+            </select>
+          </div>
+
+          <!-- Start & End Dates -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block mb-1 font-semibold">Start Date</label>
+              <input v-model="start_date" type="date"
+                     class="w-full px-4 py-2 rounded-lg border-2 border-white bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-300" />
+            </div>
+            <div>
+              <label class="block mb-1 font-semibold">End Date</label>
+              <input v-model="end_date" type="date"
+                     class="w-full px-4 py-2 rounded-lg border-2 border-white bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-pink-300" />
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <div class="text-center">
+            <button @click="submitForm"
+                    class="px-6 py-3 bg-white text-indigo-600 font-bold rounded-lg shadow-md hover:bg-indigo-100 transition">
+              Create Project
+            </button>
+          </div>
         </div>
       </div>
-    </form>
-  </div>
+    </div>
+  </AppLayout>
 </template>
-
-<script setup>
-import { Link, useForm } from '@inertiajs/vue3'
-
-const props = defineProps({
-  statusOptions: Object
-})
-
-const form = useForm({
-  project_name: '',
-  project_title: '',
-  project_description: '',
-  project_status: 'pending',
-  project_update: '',
-  start_date: '',
-  end_date: ''
-})
-
-const submit = () => {
-  form.post(route('projects.store'))
-}
-</script>
