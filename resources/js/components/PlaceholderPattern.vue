@@ -39,7 +39,7 @@ const goToProjects = () => {
                 dominant-baseline="middle"
                 class="fill-neutral-600 dark:fill-neutral-300 text-lg group-hover:fill-neutral-800 dark:group-hover:fill-neutral-100 transition-colors cursor-pointer"
             >
-                View Projects
+                View Project
             </text>
         </svg>
     </button>
