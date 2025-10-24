@@ -9,3 +9,5 @@ yarn-error.log
 .idea
 .vscode
 .DS_Store
+/public/build/
+/public/hot
