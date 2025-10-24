@@ -17,7 +17,7 @@ class ProjectController extends Controller
     {
         $projects = Project::latest()->get();
 
-        return Inertia::render('Projects/Index', [
+        return Inertia::render('Projects/Test', [
             'projects' => $projects,
             'statusOptions' => [
                 'pending' => 'Pending',

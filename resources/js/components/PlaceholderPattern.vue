@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { router } from '@inertiajs/vue3';
+import projects from '@/routes/projects';
 
 const patternId = computed(
     () => `pattern-${Math.random().toString(36).substring(2, 9)}`,
 );
 
 const goToProjects = () => {
-    router.visit('/projects/index');
+    router.visit(projects.index.url());
 };
 </script>
 
@@ -39,7 +40,7 @@ const goToProjects = () => {
                 dominant-baseline="middle"
                 class="fill-neutral-600 dark:fill-neutral-300 text-lg group-hover:fill-neutral-800 dark:group-hover:fill-neutral-100 transition-colors cursor-pointer"
             >
-                View Project
+                View Projects
             </text>
         </svg>
     </button>
