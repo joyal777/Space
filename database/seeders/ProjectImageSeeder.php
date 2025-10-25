@@ -19,6 +19,7 @@ class ProjectImageSeeder extends Seeder
             'photo-5.webp',
             'photo-6.webp',
             'photo-7.webp',
+            'photo-8.png',
 
         ];
 

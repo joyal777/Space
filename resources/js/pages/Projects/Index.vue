@@ -8,6 +8,34 @@ interface Props {
     projects: any[];
     statusOptions: Record<string, string>;
 }
+// Updated Date formatting function that handles both date strings and text
+const formatDateWithHyphen = (dateString: string | null) => {
+    // If null, empty, or falsy, return empty string (don't show anything)
+    if (!dateString) return '';
+    
+    // If it's already in a readable text format (like "2025-12-18"), try to parse it
+    // If it contains non-date text or is invalid, return the original text
+    const date = new Date(dateString);
+    
+    // Check if the date is valid
+    if (isNaN(date.getTime())) {
+        // If not a valid date, check if it's a simple date string like "2025-12-18"
+        const simpleDateMatch = dateString.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+        if (simpleDateMatch) {
+            const [, year, month, day] = simpleDateMatch;
+            return `${parseInt(day)}-${parseInt(month)}-${year}`;
+        }
+        
+        // If it's some other text format, return it as-is
+        return dateString;
+    }
+    
+    // If it's a valid date object, format it as day-month-year
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
+};
 
 const props = defineProps<Props>();
 
@@ -67,8 +95,8 @@ const deleteProject = (project: any) => {
                         {{ props.statusOptions[project.project_status] }}
                     </span>
 
-                    <p class="text-sm text-gray-500 mt-2">Start: {{ project.start_date }}</p>
-                    <p class="text-sm text-gray-500">End: {{ project.end_date }}</p>
+                    <p class="text-sm text-gray-500 mt-2">Start: {{ formatDateWithHyphen(project.start_date) }}</p>
+                    <p class="text-sm text-gray-500">End: {{ formatDateWithHyphen(project.end_date) }}</p>
 
                     <div class="flex justify-between mt-4">
                         <Link :href="show(project.id).url" class="text-blue-600 hover:text-blue-900 text-xs font-semibold">View</Link>
@@ -81,3 +109,4 @@ const deleteProject = (project: any) => {
     </div>
 </AppLayout>
 </template>
+
