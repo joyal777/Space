@@ -20,6 +20,7 @@ return new class extends Migration
             $table->date('start_date')->nullable();
             $table->text('end_date')->nullable(); // Can be both date and text
             $table->timestamps();
+            
         });
     }
 

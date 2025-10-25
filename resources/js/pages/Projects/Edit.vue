@@ -26,7 +26,6 @@ const submit = () => {
     preserveScroll: true,
     onSuccess: () => {
       // success toast (optional)
-      console.log('✅ Project updated successfully!')
     },
     onError: (errors) => {
       console.error(errors)
@@ -53,9 +52,9 @@ const breadcrumbItems: BreadcrumbItem[] = [
     <!-- Back Button -->
     <Link
       :href="index().url"
-      class="inline-block mb-6 bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition"
+      class="bg-grey-600 text-black px-4 py-2 rounded-lg"
     >
-      ← Back to Projects
+      Go to Projects
     </Link>
 
     <div class="max-w-3xl mx-auto my-10">

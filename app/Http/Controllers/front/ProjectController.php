@@ -10,9 +10,6 @@ use Illuminate\Support\Facades\Redirect;
 
 class ProjectController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         $projects = Project::latest()->get();
@@ -29,9 +26,6 @@ class ProjectController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         return Inertia::render('Projects/Create', [
@@ -45,9 +39,6 @@ class ProjectController extends Controller
         ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -58,28 +49,21 @@ class ProjectController extends Controller
             'project_update' => 'nullable|string',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|string',
+            'project_image' => 'nullable|string',
         ]);
 
-        $project = Project::create($validated);
+        Project::create($validated);
 
         return Redirect::route('projects.index')->with('success', 'Project created successfully!');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(string $id)
     {
         $project = Project::findOrFail($id);
 
-        return Inertia::render('Projects/Show', [
-            'project' => $project
-        ]);
+        return Inertia::render('Projects/Show', ['project' => $project]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(string $id)
     {
         $project = Project::findOrFail($id);
@@ -96,9 +80,6 @@ class ProjectController extends Controller
         ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, string $id)
     {
         $project = Project::findOrFail($id);
@@ -111,6 +92,7 @@ class ProjectController extends Controller
             'project_update' => 'nullable|string',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|string',
+            'project_image' => 'nullable|string',
         ]);
 
         $project->update($validated);
@@ -118,9 +100,6 @@ class ProjectController extends Controller
         return Redirect::route('projects.index')->with('success', 'Project updated successfully!');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $id)
     {
         $project = Project::findOrFail($id);
