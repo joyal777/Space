@@ -40,10 +40,19 @@ const formatDateWithHyphen = (dateString: string | null) => {
 };
 
 // Breadcrumb items
-const breadcrumbItems: BreadcrumbItem[] = [
-    { title: 'Tasks', href: index().url },
-    { title: props.task.task_name, href: '#' },
-];
+const breadcrumbItems = computed((): BreadcrumbItem[] => {
+    if (currentProject.value) {
+        return [
+            { title: currentProject.value.project_name, href: show(currentProject.value.id).url },
+            { title: props.task.task_name, href: '#' },
+        ];
+    } else {
+        return [
+            { title: 'Tasks', href: index().url },
+            { title: props.task.task_name, href: '#' },
+        ];
+    }
+});
 
 // Delete task function
 const deleteTask = () => {
