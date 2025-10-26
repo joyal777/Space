@@ -4,9 +4,13 @@ use App\Http\Controllers\front\ProjectController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
+use App\Http\Controllers\front\TaskController;
 Route::get('/', function () {
     return Inertia::render('Welcome');
 })->name('home');
+
+Route::resource('tasks', TaskController::class);
+
 
 Route::resource('projects', ProjectController::class);
 Route::get('test-inertia', function () {

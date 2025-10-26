@@ -59,9 +59,31 @@ class ProjectController extends Controller
 
     public function show(string $id)
     {
-        $project = Project::findOrFail($id);
+        $project = Project::with(['tasks' => function($query) {
+            $query->orderBy('priority')->orderBy('created_at', 'desc');
+        }])->findOrFail($id);
 
-        return Inertia::render('Projects/Show', ['project' => $project]);
+        $statusOptions = [
+            'pending' => 'Pending',
+            'in_progress' => 'In Progress',
+            'completed' => 'Completed',
+            'on_hold' => 'On Hold',
+            'cancelled' => 'Cancelled',
+        ];
+
+        $priorityOptions = [
+            1 => 'Highest',
+            2 => 'High',
+            3 => 'Medium',
+            4 => 'Low',
+            5 => 'Lowest',
+        ];
+
+        return Inertia::render('Projects/Show', [
+            'project' => $project,
+            'statusOptions' => $statusOptions,
+            'priorityOptions' => $priorityOptions
+        ]);
     }
 
     public function edit(string $id)

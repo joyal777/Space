@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Project extends Model
 {
@@ -34,11 +35,11 @@ class Project extends Model
         });
     }
 
-    // Relationships can be added later (e.g., with tasks)
-    // public function tasks()
-    // {
-    //     return $this->hasMany(Task::class);
-    // }
+    // Relationship with Tasks
+    public function tasks(): HasMany
+    {
+        return $this->hasMany(Task::class);
+    }
 
     // Helper methods
     public function isActive()
@@ -61,5 +62,24 @@ class Project extends Model
             'cancelled' => 'red',
             default => 'gray',
         };
+    }
+
+    // New helper methods for tasks
+    public function getCompletedTasksCount(): int
+    {
+        return $this->tasks()->where('task_status', 'completed')->count();
+    }
+
+    public function getTotalTasksCount(): int
+    {
+        return $this->tasks()->count();
+    }
+
+    public function getProgressPercentage(): float
+    {
+        $total = $this->getTotalTasksCount();
+        if ($total === 0) return 0;
+
+        return ($this->getCompletedTasksCount() / $total) * 100;
     }
 }

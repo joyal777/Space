@@ -1,50 +1,388 @@
-<template>
-  <div>
-    <div class="flex justify-between items-center mb-6">
-      <h1 class="text-2xl font-bold">{{ project.project_name }}</h1>
-      <div class="space-x-2">
-        <Link :href="route('projects.edit', project.id)" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Edit</Link>
-        <Link :href="route('projects.index')" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Back</Link>
-      </div>
-    </div>
+<script setup lang="ts">
+import AppLayout from '@/Layouts/AppLayout.vue';
+import { Head, Link, router } from '@inertiajs/vue3';
+import { type BreadcrumbItem } from '@/types';
+import { create, edit, index } from '@/routes/projects';
+import { create as createTask, show as showTask, edit as editTask } from '@/routes/tasks'; // Import task routes
+import { computed } from 'vue';
 
-    <div class="bg-white shadow-md rounded-lg p-6">
-      <div class="grid grid-cols-2 gap-4">
-        <div>
-          <strong>Project Code:</strong> {{ project.project_code }}
-        </div>
-        <div>
-          <strong>Status:</strong>
-          <span :class="`px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-${project.status_color}-100 text-${project.status_color}-800`">
-            {{ project.project_status }}
-          </span>
-        </div>
-        <div>
-          <strong>Title:</strong> {{ project.project_title }}
-        </div>
-        <div>
-          <strong>Start Date:</strong> {{ project.start_date }}
-        </div>
-        <div class="col-span-2">
-          <strong>Description:</strong>
-          <p class="mt-1">{{ project.project_description }}</p>
-        </div>
-        <div class="col-span-2">
-          <strong>Latest Update:</strong>
-          <p class="mt-1">{{ project.project_update }}</p>
-        </div>
-        <div class="col-span-2">
-          <strong>End Date:</strong> {{ project.end_date }}
-        </div>
-      </div>
-    </div>
-  </div>
-</template>
+interface Props {
+    project: {
+        id: number;
+        project_code: string;
+        project_name: string;
+        project_title: string;
+        project_description: string;
+        project_status: string;
+        project_update: string;
+        project_image: string;
+        start_date: string;
+        end_date: string;
+        status_color: string;
+        tasks: any[];
+    };
+    statusOptions: Record<string, string>;
+    priorityOptions: Record<number, string>;
+}
 
-<script setup>
-import { Link } from '@inertiajs/vue3'
+const props = defineProps<Props>();
 
-defineProps({
-  project: Object
-})
+// Date formatting function
+const formatDateWithHyphen = (dateString: string | null) => {
+    if (!dateString) return '';
+
+    const date = new Date(dateString);
+
+    if (isNaN(date.getTime())) {
+        const simpleDateMatch = dateString.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+        if (simpleDateMatch) {
+            const [, year, month, day] = simpleDateMatch;
+            return `${parseInt(day)}-${parseInt(month)}-${year}`;
+        }
+        return dateString;
+    }
+
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
+};
+
+// Breadcrumb items
+const breadcrumbItems: BreadcrumbItem[] = [
+    { title: 'Projects', href: index().url },
+    { title: props.project.project_name, href: '#' },
+];
+
+// Delete project function
+const deleteProject = () => {
+    if (confirm('Are you sure you want to delete this project?')) {
+        router.delete(route('projects.destroy', props.project.id));
+    }
+};
+
+// Delete task function
+const deleteTask = (task: any) => {
+    if (confirm('Are you sure you want to delete this task?')) {
+        router.delete(route('tasks.destroy', task.id));
+    }
+};
+
+// Calculate project progress based on tasks
+const projectProgress = computed(() => {
+    const totalTasks = props.project.tasks?.length || 0;
+    if (totalTasks === 0) return 0;
+
+    const completedTasks = props.project.tasks?.filter(task => task.task_status === 'completed').length || 0;
+    return Math.round((completedTasks / totalTasks) * 100);
+});
 </script>
+
+<template>
+    <AppLayout :breadcrumbs="breadcrumbItems">
+        <Head :title="project.project_name" />
+
+        <div class="p-6 space-y-6">
+            <!-- Success Message -->
+            <div v-if="$page.props.flash?.success" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
+                {{ $page.props.flash.success }}
+            </div>
+
+            <!-- Header Section -->
+            <div class="flex justify-between items-start">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">{{ project.project_name }}</h1>
+                    <p class="text-lg text-gray-600 mt-1">{{ project.project_title }}</p>
+                </div>
+                <div class="flex space-x-3">
+                    <Link
+                        :href="createTask().url"
+                        class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition flex items-center"
+                    >
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        Add Task
+                    </Link>
+                    <Link
+                        :href="edit(project.id).url"
+                        class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition flex items-center"
+                    >
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                        </svg>
+                        Edit Project
+                    </Link>
+                    <button
+                        @click="deleteProject"
+                        class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition flex items-center"
+                    >
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                        Delete
+                    </button>
+                    <Link
+                        :href="index().url"
+                        class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition flex items-center"
+                    >
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                        </svg>
+                        Back to Projects
+                    </Link>
+                </div>
+            </div>
+
+            <!-- Project Image -->
+            <div class="rounded-xl overflow-hidden shadow-lg">
+                <img
+                    :src="`/frontend/images/projects/${project.project_image}`"
+                    :alt="project.project_name"
+                    class="w-full h-64 md:h-80 object-cover"
+                />
+            </div>
+
+            <!-- Project Details -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Main Information -->
+                <div class="lg:col-span-2 space-y-6">
+                    <!-- Description Card -->
+                    <div class="bg-white rounded-xl shadow-md p-6">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-4">Project Description</h2>
+                        <p class="text-gray-700 leading-relaxed">{{ project.project_description }}</p>
+                    </div>
+
+                    <!-- Latest Update Card -->
+                    <div class="bg-white rounded-xl shadow-md p-6">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-4">Latest Update</h2>
+                        <p class="text-gray-700 leading-relaxed">{{ project.project_update || 'No updates available' }}</p>
+                    </div>
+
+                    <!-- Tasks Section -->
+                    <div class="bg-white rounded-xl shadow-md p-6">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-xl font-semibold text-gray-800">Project Tasks</h2>
+                            <Link
+                                :href="createTask().url"
+                                class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition flex items-center text-sm"
+                            >
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                </svg>
+                                Add Task
+                            </Link>
+                        </div>
+
+                        <!-- Progress Bar -->
+                        <div class="mb-6">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-sm font-medium text-gray-700">Project Progress</span>
+                                <span class="text-sm font-medium text-gray-700">{{ projectProgress }}%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div
+                                    class="bg-green-600 h-2 rounded-full transition-all duration-300"
+                                    :style="{ width: `${projectProgress}%` }"
+                                ></div>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-1">
+                                {{ project.tasks?.filter(t => t.task_status === 'completed').length || 0 }} of {{ project.tasks?.length || 0 }} tasks completed
+                            </p>
+                        </div>
+
+                        <!-- Tasks List -->
+                        <div v-if="project.tasks && project.tasks.length > 0" class="space-y-4">
+                            <div
+                                v-for="task in project.tasks"
+                                :key="task.id"
+                                class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+                            >
+                                <div class="flex justify-between items-start mb-2">
+                                    <div class="flex-1">
+                                        <h3 class="font-semibold text-gray-800">{{ task.task_name }}</h3>
+                                        <p class="text-sm text-gray-600 mt-1">{{ task.task_description }}</p>
+                                    </div>
+                                    <span class="text-xs text-gray-500 ml-2">{{ task.task_code }}</span>
+                                </div>
+
+                                <div class="flex justify-between items-center">
+                                    <div class="flex space-x-2">
+                                        <span
+                                            class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold"
+                                            :class="{
+                                                'bg-gray-100 text-gray-800': task.task_status === 'pending',
+                                                'bg-blue-100 text-blue-800': task.task_status === 'in_progress',
+                                                'bg-green-100 text-green-800': task.task_status === 'completed',
+                                                'bg-yellow-100 text-yellow-800': task.task_status === 'on_hold',
+                                                'bg-red-100 text-red-800': task.task_status === 'cancelled',
+                                            }"
+                                        >
+                                            {{ statusOptions[task.task_status] }}
+                                        </span>
+                                        <span
+                                            class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold"
+                                            :class="{
+                                                'bg-red-100 text-red-800': task.priority === 1,
+                                                'bg-orange-100 text-orange-800': task.priority === 2,
+                                                'bg-yellow-100 text-yellow-800': task.priority === 3,
+                                                'bg-blue-100 text-blue-800': task.priority === 4,
+                                                'bg-gray-100 text-gray-800': task.priority === 5,
+                                            }"
+                                        >
+                                            {{ priorityOptions[task.priority] }}
+                                        </span>
+                                    </div>
+
+                                    <div class="flex space-x-2">
+                                        <Link
+                                            :href="showTask(task.id).url"
+                                            class="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                                        >
+                                            View
+                                        </Link>
+                                        <Link
+                                            :href="editTask(task.id).url"
+                                            class="text-green-600 hover:text-green-800 text-sm font-medium"
+                                        >
+                                            Edit
+                                        </Link>
+                                        <button
+                                            @click="deleteTask(task)"
+                                            class="text-red-600 hover:text-red-800 text-sm font-medium"
+                                        >
+                                            Delete
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-4 mt-3 text-xs text-gray-500">
+                                    <div>
+                                        <span class="font-medium">Start:</span> {{ formatDateWithHyphen(task.start_date) }}
+                                    </div>
+                                    <div>
+                                        <span class="font-medium">End:</span> {{ formatDateWithHyphen(task.end_date) }}
+                                    </div>
+                                </div>
+
+                                <div v-if="task.estimated_hours || task.actual_hours" class="flex justify-between mt-2 text-xs text-gray-500">
+                                    <span>Estimated: {{ task.estimated_hours || 0 }}h</span>
+                                    <span>Actual: {{ task.actual_hours || 0 }}h</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Empty State -->
+                        <div v-else class="text-center py-8">
+                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                            </svg>
+                            <h3 class="mt-2 text-sm font-medium text-gray-900">No tasks</h3>
+                            <p class="mt-1 text-sm text-gray-500">Get started by creating your first task.</p>
+                            <div class="mt-6">
+                                <Link
+                                    :href="createTask().url"
+                                    class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+                                >
+                                    <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                    </svg>
+                                    Add Task
+                                </Link>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar Information -->
+                <div class="space-y-6">
+                    <!-- Status & Details Card -->
+                    <div class="bg-white rounded-xl shadow-md p-6">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-4">Project Details</h2>
+
+                        <div class="space-y-4">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Project Code</p>
+                                <p class="text-lg font-semibold text-gray-800">{{ project.project_code }}</p>
+                            </div>
+
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Status</p>
+                                <span
+                                    class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium"
+                                    :class="{
+                                        'bg-gray-100 text-gray-800': project.project_status === 'pending',
+                                        'bg-blue-100 text-blue-800': project.project_status === 'in_progress',
+                                        'bg-green-100 text-green-800': project.project_status === 'completed',
+                                        'bg-yellow-100 text-yellow-800': project.project_status === 'on_hold',
+                                        'bg-red-100 text-red-800': project.project_status === 'cancelled',
+                                    }"
+                                >
+                                    {{ statusOptions[project.project_status] }}
+                                </span>
+                            </div>
+
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Start Date</p>
+                                <p class="text-lg text-gray-800">{{ formatDateWithHyphen(project.start_date) }}</p>
+                            </div>
+
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">End Date</p>
+                                <p class="text-lg text-gray-800">{{ formatDateWithHyphen(project.end_date) }}</p>
+                            </div>
+
+                            <!-- Task Statistics -->
+                            <div class="pt-4 border-t border-gray-200">
+                                <p class="text-sm font-medium text-gray-500 mb-2">Task Statistics</p>
+                                <div class="space-y-2">
+                                    <div class="flex justify-between text-sm">
+                                        <span>Total Tasks:</span>
+                                        <span class="font-semibold">{{ project.tasks?.length || 0 }}</span>
+                                    </div>
+                                    <div class="flex justify-between text-sm">
+                                        <span>Completed:</span>
+                                        <span class="font-semibold text-green-600">{{ project.tasks?.filter(t => t.task_status === 'completed').length || 0 }}</span>
+                                    </div>
+                                    <div class="flex justify-between text-sm">
+                                        <span>In Progress:</span>
+                                        <span class="font-semibold text-blue-600">{{ project.tasks?.filter(t => t.task_status === 'in_progress').length || 0 }}</span>
+                                    </div>
+                                    <div class="flex justify-between text-sm">
+                                        <span>Pending:</span>
+                                        <span class="font-semibold text-gray-600">{{ project.tasks?.filter(t => t.task_status === 'pending').length || 0 }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="bg-white rounded-xl shadow-md p-6">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-4">Quick Actions</h2>
+                        <div class="space-y-3">
+                            <Link
+                                :href="createTask().url"
+                                class="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition"
+                            >
+                                Add New Task
+                            </Link>
+                            <Link
+                                :href="edit(project.id).url"
+                                class="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 transition"
+                            >
+                                Edit Project
+                            </Link>
+                            <Link
+                                :href="index().url"
+                                class="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition"
+                            >
+                                Back to Projects
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </AppLayout>
+</template>

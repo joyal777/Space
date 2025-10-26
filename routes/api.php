@@ -17,4 +17,5 @@ use App\Http\Controllers\front\ProjectController;
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::apiResource('projects', ProjectController::class);
+
 });

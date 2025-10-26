@@ -12,11 +12,11 @@ interface Props {
 const formatDateWithHyphen = (dateString: string | null) => {
     // If null, empty, or falsy, return empty string (don't show anything)
     if (!dateString) return '';
-    
+
     // If it's already in a readable text format (like "2025-12-18"), try to parse it
     // If it contains non-date text or is invalid, return the original text
     const date = new Date(dateString);
-    
+
     // Check if the date is valid
     if (isNaN(date.getTime())) {
         // If not a valid date, check if it's a simple date string like "2025-12-18"
@@ -25,11 +25,11 @@ const formatDateWithHyphen = (dateString: string | null) => {
             const [, year, month, day] = simpleDateMatch;
             return `${parseInt(day)}-${parseInt(month)}-${year}`;
         }
-        
+
         // If it's some other text format, return it as-is
         return dateString;
     }
-    
+
     // If it's a valid date object, format it as day-month-year
     const month = date.getMonth() + 1;
     const day = date.getDate();
@@ -72,9 +72,9 @@ const deleteProject = (project: any) => {
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
             <div v-for="project in props.projects" :key="project.id" class="bg-white rounded-lg shadow-lg overflow-hidden">
                 <!-- Project Image -->
-                <img 
-                    :src="`/frontend/images/projects/${project.project_image}`" 
-                    alt="Project Image" 
+                <img
+                    :src="`/frontend/images/projects/${project.project_image}`"
+                    alt="Project Image"
                     class="w-full h-40 object-cover"
                 />
 
@@ -82,7 +82,7 @@ const deleteProject = (project: any) => {
                     <h2 class="font-bold text-lg text-gray-800 truncate">{{ project.project_name }}</h2>
                     <p class="text-sm text-gray-600 truncate">{{ project.project_title }}</p>
 
-                    <span 
+                    <span
                         class="inline-block mt-2 px-2 py-1 text-xs font-semibold rounded-full"
                         :class="{
                             'bg-gray-100 text-gray-800': project.project_status === 'pending',
