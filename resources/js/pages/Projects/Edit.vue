@@ -1,15 +1,20 @@
 <script setup lang="ts">
 import { Head, Link, useForm } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
-import { projects, index, update } from '@/routes/projects' // 👈 import route helpers
+import { projects, index, update } from '@/routes/projects'
 import { BreadcrumbItem } from '@/types'
+import { ref, reactive } from 'vue'
 
 const props = defineProps({
   project: Object,
   statusOptions: Object
 })
 
-// Use Inertia form helper
+// Refs for file input and preview
+const fileInput = ref<HTMLInputElement>()
+const imagePreview = ref<string>('')
+
+// Use Inertia form helper with image
 const form = useForm({
   project_name: props.project.project_name,
   project_title: props.project.project_title,
@@ -17,21 +22,70 @@ const form = useForm({
   project_status: props.project.project_status,
   project_update: props.project.project_update,
   start_date: props.project.start_date,
-  end_date: props.project.end_date
+  end_date: props.project.end_date,
+  project_image: null as File | null,
+  _method: 'put'
 })
 
-// 🔧 Use the `update()` route helper instead of manual route()
+// Handle file selection
+const handleFileChange = (event: Event) => {
+  const target = event.target as HTMLInputElement
+  if (target.files && target.files[0]) {
+    const file = target.files[0]
+    form.project_image = file
+
+    // Create preview URL
+    if (imagePreview.value) {
+      URL.revokeObjectURL(imagePreview.value) // Clean up previous URL
+    }
+    imagePreview.value = URL.createObjectURL(file)
+    console.log('File selected and preview created:', file.name)
+  }
+}
+
+// Trigger file input click
+const triggerFileInput = () => {
+  fileInput.value?.click()
+}
+
+// Remove selected image
+const removeImage = () => {
+  form.project_image = null
+  if (imagePreview.value) {
+    URL.revokeObjectURL(imagePreview.value) // Clean up URL
+    imagePreview.value = ''
+  }
+  if (fileInput.value) {
+    fileInput.value.value = ''
+  }
+}
+
+// Submit form
 const submit = () => {
-  form.put(update(props.project.id).url, {
+  console.log('Submitting form with image:', form.project_image ? form.project_image.name : 'No image')
+
+  form.post(update(props.project.id).url, {
     preserveScroll: true,
+    forceFormData: true,
     onSuccess: () => {
-      // success toast (optional)
+      // Clean up preview URL on success
+      if (imagePreview.value) {
+        URL.revokeObjectURL(imagePreview.value)
+      }
     },
     onError: (errors) => {
-      console.error(errors)
+      console.error('Update errors:', errors)
     }
   })
 }
+
+// Clean up URL when component unmounts
+import { onUnmounted } from 'vue'
+onUnmounted(() => {
+  if (imagePreview.value) {
+    URL.revokeObjectURL(imagePreview.value)
+  }
+})
 
 // Breadcrumbs
 const breadcrumbItems: BreadcrumbItem[] = [
@@ -61,7 +115,64 @@ const breadcrumbItems: BreadcrumbItem[] = [
       <div class="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 p-8 rounded-xl shadow-lg text-white">
         <h1 class="text-3xl font-bold mb-6 text-center">Edit Project</h1>
 
-        <form @submit.prevent="submit" class="space-y-5">
+        <form @submit.prevent="submit" class="space-y-5" enctype="multipart/form-data">
+          <!-- Project Image Upload -->
+          <div>
+            <label class="block mb-1 font-semibold">Project Banner Image</label>
+
+            <!-- Current Image Preview -->
+            <div v-if="project.project_image && !form.project_image" class="mb-4">
+              <p class="text-sm mb-2">Current Image:</p>
+              <img
+                :src="`/frontend/images/projects/${project.project_image}`"
+                :alt="project.project_name"
+                class="w-full h-48 object-cover rounded-lg border-2 border-white"
+              />
+            </div>
+
+            <!-- New Image Preview -->
+            <div v-if="form.project_image && imagePreview" class="mb-4">
+              <p class="text-sm mb-2">New Image Preview:</p>
+              <img
+                :src="imagePreview"
+                :alt="'New image for ' + project.project_name"
+                class="w-full h-48 object-cover rounded-lg border-2 border-white"
+              />
+              <button
+                type="button"
+                @click="removeImage"
+                class="mt-2 bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600 transition"
+              >
+                Remove New Image
+              </button>
+            </div>
+
+            <!-- File Input -->
+            <input
+              ref="fileInput"
+              type="file"
+              @change="handleFileChange"
+              accept="image/*"
+              class="hidden"
+            />
+
+            <button
+              type="button"
+              @click="triggerFileInput"
+              class="w-full px-4 py-2 rounded-lg border-2 border-dashed border-white bg-transparent hover:bg-white hover:border-2 hover:border-dashed hover:border-black hover:text-black transition flex items-center justify-center"
+            >
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+              </svg>
+              {{ form.project_image ? 'Change Image' : 'Upload New Image' }}
+            </button>
+
+            <p class="text-sm text-white text-opacity-80 mt-1">
+              {{ form.project_image ? form.project_image.name : 'Click to upload a new banner image' }}
+            </p>
+            <div v-if="form.errors.project_image" class="text-red-200 text-sm mt-1">{{ form.errors.project_image }}</div>
+          </div>
+
           <!-- Project Code (Read Only) -->
           <div>
             <label class="block mb-1 font-semibold">Project Code</label>

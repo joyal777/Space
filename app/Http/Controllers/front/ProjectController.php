@@ -7,6 +7,8 @@ use App\Models\Project;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class ProjectController extends Controller
 {
@@ -102,24 +104,37 @@ class ProjectController extends Controller
         ]);
     }
 
-    public function update(Request $request, string $id)
+    public function update(Request $request, Project $project)
     {
-        $project = Project::findOrFail($id);
-
         $validated = $request->validate([
             'project_name' => 'required|string|max:255',
             'project_title' => 'nullable|string|max:255',
             'project_description' => 'nullable|string',
-            'project_status' => 'required|in:pending,in_progress,completed,on_hold,cancelled',
+            'project_status' => 'nullable|in:pending,in_progress,completed,on_hold,cancelled',
             'project_update' => 'nullable|string',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|string',
-            'project_image' => 'nullable|string',
+            'project_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp',
         ]);
+
+        // Handle image upload
+        if ($request->hasFile('project_image')) {
+            // Delete old image if exists
+            if ($project->project_image && file_exists(public_path('frontend/images/projects/' . $project->project_image))) {
+                unlink(public_path('frontend/images/projects/' . $project->project_image));
+            }
+
+            $image = $request->file('project_image');
+            $imageName = Str::random(40) . '.' . $image->getClientOriginalExtension();
+
+            // Store image in public directory
+            $image->move(public_path('frontend/images/projects'), $imageName);
+            $validated['project_image'] = $imageName;
+        }
 
         $project->update($validated);
 
-        return Redirect::route('projects.index')->with('success', 'Project updated successfully!');
+        return Redirect::route('projects.show', $project->id)->with('success', 'Project updated successfully!');
     }
 
     public function destroy(string $id)
