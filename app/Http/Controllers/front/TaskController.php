@@ -131,9 +131,12 @@ class TaskController extends Controller
      */
     public function destroy(Task $task)
     {
+        $projectId = $task->project_id; // Get the project ID before deletion
+
         $task->delete();
 
-        return redirect()->route('tasks.index')
+        // Redirect back to the project page instead of tasks index
+        return redirect()->route('projects.show', $projectId)
             ->with('success', 'Task deleted successfully!');
     }
 

@@ -2,7 +2,7 @@
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { type BreadcrumbItem } from '@/types';
-import { index, show } from '@/routes/tasks';
+import { index, show, update } from '@/routes/tasks'; // Import update from routes
 
 interface Props {
     task: any;
@@ -36,7 +36,8 @@ const form = useForm({
 });
 
 const submit = () => {
-    form.put(route('tasks.update', props.task.id));
+    // Use the update route from your routes file
+    form.put(update(props.task.id).url);
 };
 </script>
 
@@ -56,6 +57,15 @@ const submit = () => {
                 {{ $page.props.flash.success }}
             </div>
 
+            <!-- Error Messages -->
+            <div v-if="Object.keys(form.errors).length > 0" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+                <ul>
+                    <li v-for="error in form.errors" :key="error" class="text-sm">
+                        {{ error }}
+                    </li>
+                </ul>
+            </div>
+
             <!-- Form -->
             <form @submit.prevent="submit" class="bg-white rounded-lg shadow-md p-6 space-y-6">
                 <!-- Project Selection -->
@@ -68,6 +78,7 @@ const submit = () => {
                         v-model="form.project_id"
                         class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                         :class="{ 'border-red-500': form.errors.project_id }"
+                        required
                     >
                         <option value="">Select a Project</option>
                         <option v-for="project in props.projects" :key="project.id" :value="project.id">
@@ -89,6 +100,7 @@ const submit = () => {
                         class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                         :class="{ 'border-red-500': form.errors.task_name }"
                         placeholder="Enter task name"
+                        required
                     />
                     <p v-if="form.errors.task_name" class="mt-1 text-sm text-red-600">{{ form.errors.task_name }}</p>
                 </div>
@@ -119,6 +131,7 @@ const submit = () => {
                             id="task_status"
                             v-model="form.task_status"
                             class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                            required
                         >
                             <option v-for="(label, value) in props.statusOptions" :key="value" :value="value">
                                 {{ label }}
@@ -134,6 +147,7 @@ const submit = () => {
                             id="priority"
                             v-model="form.priority"
                             class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                            required
                         >
                             <option v-for="(label, value) in props.priorityOptions" :key="value" :value="value">
                                 {{ label }}
@@ -180,6 +194,7 @@ const submit = () => {
                             id="estimated_hours"
                             v-model="form.estimated_hours"
                             min="0"
+                            step="0.5"
                             class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                             placeholder="0"
                         />
@@ -194,6 +209,7 @@ const submit = () => {
                             id="actual_hours"
                             v-model="form.actual_hours"
                             min="0"
+                            step="0.5"
                             class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                             placeholder="0"
                         />

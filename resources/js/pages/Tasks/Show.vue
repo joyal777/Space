@@ -2,9 +2,10 @@
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { type BreadcrumbItem } from '@/types';
-import { index, edit } from '@/routes/tasks';
+import { create, edit, index, destroy as destroyProjectRoute } from '@/routes/projects';
+import { create as createTask, show as showTask, edit as editTask, destroy as destroyTaskRoute } from '@/routes/tasks';
 import { show } from '@/routes/projects';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 
 interface Props {
     task: any;
@@ -55,11 +56,59 @@ const breadcrumbItems = computed((): BreadcrumbItem[] => {
 });
 
 // Delete task function
-const deleteTask = () => {
-    if (confirm('Are you sure you want to delete this task?')) {
-        router.delete(route('tasks.destroy', props.task.id));
-    }
+// Modal state - ADD THIS
+const showDeleteModal = ref(false);
+const itemToDelete = ref<{ type: string; id: number; name: string } | null>(null);
+
+// Open delete confirmation modal - ADD THIS
+const confirmDelete = (type: string, id: number, name: string) => {
+    itemToDelete.value = { type, id, name };
+    showDeleteModal.value = true;
 };
+
+// Close delete confirmation modal - ADD THIS
+const closeDeleteModal = () => {
+    showDeleteModal.value = false;
+    itemToDelete.value = null;
+};
+
+// Execute delete after confirmation - MODIFY THIS BASED ON YOUR ROUTES
+const executeDelete = () => {
+    if (!itemToDelete.value) return;
+
+    const { type, id } = itemToDelete.value;
+
+    // MODIFY THESE ROUTES BASED ON YOUR PAGE
+    if (type === 'project') {
+        router.delete(destroyProjectRoute(id).url, {
+            onSuccess: () => {
+                console.log('Project deleted successfully');
+            },
+            onError: (errors) => {
+                console.error('Error deleting project:', errors);
+            }
+        });
+    } else if (type === 'task') {
+        router.delete(destroyTaskRoute(id).url, {
+            onSuccess: () => {
+                console.log('Task deleted successfully');
+            },
+            onError: (errors) => {
+                console.error('Error deleting task:', errors);
+            },
+            preserveScroll: false,
+            preserveState: false
+        });
+    }
+    // ADD MORE TYPES AS NEEDED
+
+    closeDeleteModal();
+};
+const deleteTask = (task: any) => {
+    confirmDelete('task', task.id, task.task_name);
+};
+// Delete item function - MODIFY THIS FOR YOUR BUTTONS
+
 </script>
 
 <template>
@@ -70,6 +119,49 @@ const deleteTask = () => {
             <!-- Success Message -->
             <div v-if="$page.props.flash?.success" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
                 {{ $page.props.flash.success }}
+            </div>
+
+            <div v-if="$page.props.flash?.error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                {{ $page.props.flash.error }}
+            </div>
+
+            <div v-if="showDeleteModal" class="fixed inset-0 bg-[#00000075] overflow-y-auto h-full w-full z-50 flex items-center justify-center"><div class="relative p-5 border w-96 shadow-lg rounded-md bg-white">
+                    <div class="mt-3 text-center">
+                        <!-- Warning Icon -->
+                        <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+                            <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                            </svg>
+                        </div>
+
+                        <h3 class="text-lg leading-6 font-medium text-gray-900 mt-2">
+                            Delete {{ itemToDelete?.type === 'project' ? 'Project' : 'Task' }}
+                        </h3>
+
+                        <div class="mt-2 px-7 py-3">
+                            <p class="text-sm text-gray-500">
+                                Are you sure you want to delete
+                                <span class="font-semibold">"{{ itemToDelete?.name }}"</span>?
+                                {{ itemToDelete?.type === 'project' ? 'This will also delete all associated tasks.' : 'This action cannot be undone.' }}
+                            </p>
+                        </div>
+
+                        <div class="flex justify-center space-x-3 mt-4">
+                            <button
+                                @click="closeDeleteModal"
+                                class="px-4 py-2 bg-gray-300 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 transition"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                @click="executeDelete"
+                                class="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 transition"
+                            >
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Header Section -->
@@ -89,7 +181,7 @@ const deleteTask = () => {
                         Edit Task
                     </Link>
                     <button
-                        @click="deleteTask"
+                        @click="deleteTask(task)"
                         class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition flex items-center"
                     >
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
