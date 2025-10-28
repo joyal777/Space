@@ -70,40 +70,39 @@ const deleteProject = (project: any) => {
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-            <div v-for="project in props.projects" :key="project.id" class="bg-white rounded-lg shadow-lg overflow-hidden">
-                <!-- Project Image -->
-                <img
-                    :src="`/frontend/images/projects/${project.project_image}`"
-                    alt="Project Image"
-                    class="w-full h-40 object-cover"
-                />
+            <div v-for="project in props.projects" :key="project.id" 
+                class="bg-white rounded-lg shadow-lg overflow-hidden transition-all duration-300 
+                        hover:shadow-xl hover:bg-blue-200 hover:scale-105 hover:-translate-y-1">
+                <!-- Wrap entire card content with Link -->
+                <Link :href="show(project.id).url" class="block">
+                    <!-- Project Image -->
+                    <img
+                        :src="`/frontend/images/projects/${project.project_image}`"
+                        :alt="project.project_name"
+                        class="w-full h-40 object-cover transition-transform duration-300 hover:scale-105"
+                    />
 
-                <div class="p-4">
-                    <h2 class="font-bold text-lg text-gray-800 truncate">{{ project.project_name }}</h2>
-                    <p class="text-sm text-gray-600 truncate">{{ project.project_title }}</p>
+                    <div class="p-4">
+                        <h2 class="font-bold text-lg text-gray-800 truncate group-hover:text-blue-700">{{ project.project_name }}</h2>
+                        <p class="text-sm text-gray-600 truncate group-hover:text-blue-600">{{ project.project_title }}</p>
 
-                    <span
-                        class="inline-block mt-2 px-2 py-1 text-xs font-semibold rounded-full"
-                        :class="{
-                            'bg-gray-100 text-gray-800': project.project_status === 'pending',
-                            'bg-blue-100 text-blue-800': project.project_status === 'in_progress',
-                            'bg-green-100 text-green-800': project.project_status === 'completed',
-                            'bg-yellow-100 text-yellow-800': project.project_status === 'on_hold',
-                            'bg-red-100 text-red-800': project.project_status === 'cancelled',
-                        }"
-                    >
-                        {{ props.statusOptions[project.project_status] }}
-                    </span>
+                        <span
+                            class="inline-block mt-2 px-2 py-1 text-xs font-semibold rounded-full transition-colors duration-300"
+                            :class="{
+                                'bg-gray-100 text-gray-800 group-hover:bg-blue-200 group-hover:text-blue-800': project.project_status === 'pending',
+                                'bg-blue-100 text-blue-800 group-hover:bg-blue-200 group-hover:text-blue-900': project.project_status === 'in_progress',
+                                'bg-green-100 text-green-800 group-hover:bg-blue-200 group-hover:text-blue-800': project.project_status === 'completed',
+                                'bg-yellow-100 text-yellow-800 group-hover:bg-blue-200 group-hover:text-blue-800': project.project_status === 'on_hold',
+                                'bg-red-100 text-red-800 group-hover:bg-blue-200 group-hover:text-blue-800': project.project_status === 'cancelled',
+                            }"
+                        >
+                            {{ props.statusOptions[project.project_status] }}
+                        </span>
 
-                    <p class="text-sm text-gray-500 mt-2">Start: {{ formatDateWithHyphen(project.start_date) }}</p>
-                    <p class="text-sm text-gray-500">End: {{ formatDateWithHyphen(project.end_date) }}</p>
-
-                    <div class="flex justify-between mt-4">
-                        <Link :href="show(project.id).url" class="text-blue-600 hover:text-blue-900 text-xs font-semibold">View</Link>
-                        <Link :href="edit(project.id).url" class="text-green-600 hover:text-green-900 text-xs font-semibold">Edit</Link>
-                        <button @click="deleteProject(project)" class="text-red-600 hover:text-red-900 text-xs font-semibold">Delete</button>
+                        <p class="text-sm text-gray-500 mt-2 group-hover:text-blue-600">Start: {{ formatDateWithHyphen(project.start_date) }}</p>
+                        <p class="text-sm text-gray-500 group-hover:text-blue-600">End: {{ formatDateWithHyphen(project.end_date) }}</p>
                     </div>
-                </div>
+                </Link>
             </div>
         </div>
     </div>
