@@ -51,8 +51,18 @@ class ProjectController extends Controller
             'project_update' => 'nullable|string',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|string',
-            'project_image' => 'nullable|string',
+            'project_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp',
         ]);
+
+        // Handle image upload
+        if ($request->hasFile('project_image')) {
+            $image = $request->file('project_image');
+            $imageName = Str::random(40) . '.' . $image->getClientOriginalExtension();
+            
+            // Store image in public directory
+            $image->move(public_path('frontend/images/projects'), $imageName);
+            $validated['project_image'] = $imageName;
+        }
 
         Project::create($validated);
 
