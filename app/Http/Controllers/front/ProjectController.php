@@ -65,7 +65,17 @@ class ProjectController extends Controller
             $validated['project_image'] = $imageName;
         }
 
-        Project::create($validated);
+        // Create project
+        $project = Project::create($validated);
+
+        // Get authenticated user ID - try different methods
+        $userId = auth()->id() ?? auth()->user()->id ?? $request->user()->id;
+
+        // Attach the authenticated user as owner with accepted status
+        $project->users()->attach($userId, [
+            'role' => 'owner',
+            'status' => 'accepted'
+        ]);
 
         return Redirect::route('projects.index')->with('success', 'Project created successfully!');
     }
