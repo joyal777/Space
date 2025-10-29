@@ -13,6 +13,10 @@ Route::resource('tasks', TaskController::class);
 
 
 Route::resource('projects', ProjectController::class);
+Route::post('/projects/{project}/invite', [ProjectController::class, 'inviteUser'])->name('projects.invite');
+Route::post('/projects/{project}/accept-invitation', [ProjectController::class, 'acceptInvitation'])->name('projects.accept-invitation');
+Route::post('/projects/{project}/reject-invitation', [ProjectController::class, 'rejectInvitation'])->name('projects.reject-invitation');
+Route::delete('/projects/{project}/users/{user}', [ProjectController::class, 'removeUser'])->name('projects.users.remove');
 Route::get('test-inertia', function () {
     return Inertia::render('Test');
 });

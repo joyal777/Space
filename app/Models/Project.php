@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -39,6 +40,25 @@ class Project extends Model
     public function tasks(): HasMany
     {
         return $this->hasMany(Task::class);
+    }
+
+    public function users(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'project_user')
+                    ->withPivot('role', 'status')
+                    ->withTimestamps();
+    }
+
+    // Get accepted team members
+    public function teamMembers()
+    {
+        return $this->users()->wherePivot('status', 'accepted');
+    }
+
+    // Get pending invitations
+    public function pendingInvitations()
+    {
+        return $this->users()->wherePivot('status', 'pending');
     }
 
     // Helper methods
