@@ -34,6 +34,14 @@ const isOwner = teamMembers.some(user =>
     user.id === authUser.id && user.pivot.role === 'owner'
 );
 
+const isMember = teamMembers.some(user =>
+    user.id === authUser.id && user.pivot.role === 'member'
+);
+
+const isPending = teamMembers.some(user =>
+    user.id === authUser.id && user.pivot.status === 'pending'
+);
+
 // Open invite modal
 const openInviteModal = () => {
     showInviteModal.value = true;
@@ -196,7 +204,7 @@ const confirmRemoveMember = () => {
                             <p class="text-sm text-gray-500">{{ user.email }}</p>
                         </div>
                     </div>
-                    <div class="flex space-x-2">
+                    <div class="flex space-x-2" v-if="isMember && isPending">
                         <!-- Accept Button -->
                         <button
                             @click="acceptInvitation(user.id)"
