@@ -255,40 +255,6 @@ class ProjectController extends Controller
         return back()->with('success', 'User removed from project successfully!');
     }
 
-    public function myProjects()
-    {
-        $user = auth()->user();
-
-        // Get projects where user is a member (accepted invitations)
-        $projects = $user->projects()
-            ->wherePivot('status', 'accepted')
-            ->withCount(['tasks', 'tasks as completed_tasks_count' => function($query) {
-                $query->where('task_status', 'completed');
-            }])
-            ->with(['users' => function($query) {
-                $query->where('status', 'accepted');
-            }])
-            ->latest()
-            ->get();
-
-        // Get pending invitations count
-        $pendingInvitationsCount = $user->projects()
-            ->wherePivot('status', 'pending')
-            ->count();
-
-        return Inertia::render('Projects/MyProjects', [
-            'projects' => $projects,
-            'pendingInvitationsCount' => $pendingInvitationsCount,
-            'statusOptions' => [
-                'pending' => 'Pending',
-                'in_progress' => 'In Progress',
-                'completed' => 'Completed',
-                'on_hold' => 'On Hold',
-                'cancelled' => 'Cancelled'
-            ]
-        ]);
-    }
-
     public function destroy(string $id)
     {
         $project = Project::findOrFail($id);
