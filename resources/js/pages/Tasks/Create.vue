@@ -19,7 +19,12 @@ const breadcrumbItems: BreadcrumbItem[] = [
 ];
 
 const goBack = () => {
-    router.visit('back'); // This will go back to the previous page
+    if (window.history.length > 1) {
+        window.history.back();
+    } else {
+        // Fallback if no history
+        window.location.href = '/projects';
+    }
 };
 
 // Form handling
@@ -269,7 +274,7 @@ const submit = () => {
         <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
           <button
             @click="goBack"
-            class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            class="bg-white text-gray-800 font-semibold px-6 py-3 rounded-lg hover:bg-gray-100 transition"
           >
             Cancel
           </button>
