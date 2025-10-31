@@ -79,6 +79,7 @@ const rightNavItems: NavItem[] = [
         href: 'https://laravel.com/docs/starter-kits#vue',
         icon: BookOpen,
     },
+
 ];
 </script>
 

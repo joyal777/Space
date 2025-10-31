@@ -14,7 +14,7 @@ import {
 import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
-import { BookOpen, Folder, LayoutGrid } from 'lucide-vue-next';
+import { BookOpen, Folder, LayoutGrid, Users } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 import projects from '@/routes/projects';
 
@@ -28,6 +28,11 @@ const mainNavItems: NavItem[] = [
         title: 'Projects',
         href: projects.index.url(),
         icon: Folder,
+    },
+    {
+        title: 'My Projects',
+        href: projects.myProjects(), // Use camelCase
+        icon: Users, // Different icon to distinguish
     }
 ];
 
