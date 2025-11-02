@@ -13,9 +13,19 @@ use Illuminate\Support\Str;
 
 class ProjectController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     public function index()
     {
-        $projects = Project::latest()->get();
+        $user = auth()->user();
+
+        $projects = Project::whereHas('users', function ($query) use ($user) {
+            $query->where('user_id', $user->id)
+                  ->where('status', 'accepted');
+        })->latest()->get();
 
         return Inertia::render('Projects/Index', [
             'projects' => $projects,
@@ -28,6 +38,7 @@ class ProjectController extends Controller
             ]
         ]);
     }
+
 
     public function create()
     {
