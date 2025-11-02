@@ -14,20 +14,32 @@ use Illuminate\Support\Str;
 class ProjectController extends Controller
 {
     public function index()
-    {
-        $projects = Project::latest()->get();
+{
+    $user = auth()->user();
 
-        return Inertia::render('Projects/Index', [
-            'projects' => $projects,
-            'statusOptions' => [
-                'pending' => 'Pending',
-                'in_progress' => 'In Progress',
-                'completed' => 'Completed',
-                'on_hold' => 'On Hold',
-                'cancelled' => 'Cancelled'
-            ]
-        ]);
-    }
+    $projects = Project::whereHas('users', function ($query) use ($user) {
+        $query->where('user_id', $user->id)
+              ->where('status', 'accepted');
+    })
+    ->with(['users' => function ($query) {
+        $query->where('status', 'accepted')
+              ->select('users.id', 'users.name'); // Select only needed fields
+    }])
+    ->select('projects.*') // Make sure to include owner_id if you have it
+    ->latest()
+    ->get();
+
+    return Inertia::render('Projects/Index', [
+        'projects' => $projects,
+        'statusOptions' => [
+            'pending' => 'Pending',
+            'in_progress' => 'In Progress',
+            'completed' => 'Completed',
+            'on_hold' => 'On Hold',
+            'cancelled' => 'Cancelled'
+        ]
+    ]);
+}
 
     public function create()
     {
