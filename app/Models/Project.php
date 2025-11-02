@@ -102,18 +102,4 @@ class Project extends Model
 
         return ($this->getCompletedTasksCount() / $total) * 100;
     }
-
-    // user access to projects
-    public function userAccesses(): HasMany
-    {
-        return $this->hasMany(ProjectUserAccess::class);
-    }
-
-    public function trackUserAccess($userId)
-    {
-        return $this->userAccesses()->updateOrCreate(
-            ['user_id' => $userId, 'project_id' => $this->id],
-            ['accessed_at' => now()]
-        );
-    }
 }
