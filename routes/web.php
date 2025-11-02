@@ -4,6 +4,7 @@ use App\Http\Controllers\front\ProjectController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
+use App\Http\Controllers\Front\DashboardController;
 use App\Http\Controllers\front\TaskController;
 Route::get('/', function () {
     return Inertia::render('Welcome');
@@ -20,9 +21,11 @@ Route::delete('/projects/{project}/users/{user}', [ProjectController::class, 're
 Route::get('test-inertia', function () {
     return Inertia::render('Test');
 });
-Route::get('dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+
+
+Route::get('dashboard', [DashboardController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
