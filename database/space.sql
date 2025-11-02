@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 31, 2025 at 05:23 PM
+-- Generation Time: Nov 02, 2025 at 03:17 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -40,8 +40,8 @@ CREATE TABLE `cache` (
 INSERT INTO `cache` (`key`, `value`, `expiration`) VALUES
 ('laravel_cache_15d8671e881778a1c15d7a56c24870f3', 'i:1;', 1761752496),
 ('laravel_cache_15d8671e881778a1c15d7a56c24870f3:timer', 'i:1761752496;', 1761752496),
-('laravel_cache_e4a5d4c398673d7742b4b9846c5a3eb7', 'i:1;', 1761926436),
-('laravel_cache_e4a5d4c398673d7742b4b9846c5a3eb7:timer', 'i:1761926436;', 1761926436);
+('laravel_cache_e4a5d4c398673d7742b4b9846c5a3eb7', 'i:1;', 1762092002),
+('laravel_cache_e4a5d4c398673d7742b4b9846c5a3eb7:timer', 'i:1762092002;', 1762092002);
 
 -- --------------------------------------------------------
 
@@ -64,7 +64,7 @@ CREATE TABLE `cache_locks` (
 CREATE TABLE `companies` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `name` varchar(255) NOT NULL,
-  `slug` varchar(255) NOT NULL,
+  `slug` varchar(255) DEFAULT NULL,
   `description` text DEFAULT NULL,
   `logo` varchar(255) DEFAULT NULL,
   `website` varchar(255) DEFAULT NULL,
@@ -87,7 +87,8 @@ CREATE TABLE `companies` (
 INSERT INTO `companies` (`id`, `name`, `slug`, `description`, `logo`, `website`, `email`, `phone`, `address`, `city`, `state`, `country`, `postal_code`, `status`, `created_at`, `updated_at`) VALUES
 (1, 'Tech Solutions Inc.', 'tech-solutions-inc-wgrmyo', 'A technology company specializing in web development and digital solutions.', NULL, 'https://techsolutions.com', 'info@techsolutions.com', '+1-555-0123', '123 Tech Street', 'San Francisco', 'CA', 'USA', '94105', 'active', '2025-10-30 11:49:56', '2025-10-30 11:49:56'),
 (2, 'Creative Design Studio', 'creative-design-studio-qbylse', 'A creative agency focused on branding, design, and marketing.', NULL, 'https://creativedesign.studio', 'hello@creativedesign.studio', '+1-555-0124', '456 Design Ave', 'New York', 'NY', 'USA', '10001', 'active', '2025-10-30 11:49:56', '2025-10-30 11:49:56'),
-(3, 'Global Consulting Group', 'global-consulting-group-gnvm27', 'International business consulting and strategy services.', NULL, 'https://globalconsulting.group', 'contact@globalconsulting.group', '+1-555-0125', '789 Business Blvd', 'Chicago', 'IL', 'USA', '60601', 'active', '2025-10-30 11:49:57', '2025-10-30 11:49:57');
+(3, 'Global Consulting Group', 'global-consulting-group-gnvm27', 'International business consulting and strategy services.', NULL, 'https://globalconsulting.group', 'contact@globalconsulting.group', '+1-555-0125', '789 Business Blvd', 'Chicago', 'IL', 'USA', '60601', 'active', '2025-10-30 11:49:57', '2025-10-30 11:49:57'),
+(4, 'Ultron', 'ultron', NULL, NULL, NULL, 'ultron@gmail.com', '+91 9188828360', NULL, NULL, NULL, NULL, NULL, 'active', '2025-11-02 02:23:41', '2025-11-02 02:23:41');
 
 -- --------------------------------------------------------
 
@@ -219,7 +220,8 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (9, '2025_10_29_150734_create_project_user_table', 6),
 (10, '2025_10_30_171035_create_companies_table', 7),
 (11, '2025_10_30_171232_create_company_user_table', 8),
-(12, '2025_10_30_171442_add_company_fields_to_projects_table', 9);
+(12, '2025_10_30_171442_add_company_fields_to_projects_table', 9),
+(13, '2025_11_02_073025_add_company_id_to_users_table', 10);
 
 -- --------------------------------------------------------
 
@@ -295,7 +297,14 @@ CREATE TABLE `project_user` (
 INSERT INTO `project_user` (`id`, `project_id`, `user_id`, `role`, `status`, `created_at`, `updated_at`) VALUES
 (1, 1, 1, 'owner', 'accepted', NULL, NULL),
 (3, 1, 3, 'member', 'accepted', '2025-10-29 10:50:09', '2025-10-29 10:50:18'),
-(4, 10, 1, 'owner', 'accepted', '2025-10-29 11:52:22', '2025-10-29 11:52:22');
+(4, 10, 1, 'owner', 'accepted', '2025-10-29 11:52:22', '2025-10-29 11:52:22'),
+(12, 2, 1, 'owner', 'accepted', NULL, NULL),
+(13, 3, 1, 'owner', 'accepted', NULL, NULL),
+(14, 4, 1, 'owner', 'accepted', NULL, NULL),
+(15, 5, 1, 'owner', 'accepted', NULL, NULL),
+(16, 6, 1, 'owner', 'accepted', NULL, NULL),
+(17, 7, 1, 'owner', 'accepted', NULL, NULL),
+(18, 9, 1, 'owner', 'accepted', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -317,8 +326,11 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
-('7dlpgXGTqTcZrosnzVMAtuWZNAKZ2GijLKzET5ah', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoidDdyYnlocEo3ZHlyd0ZoQ2s5WnVZOG9IZjhXbFZ6QXBndjh0NWM2aiI7czoyMjoiUEhQREVCVUdCQVJfU1RBQ0tfREFUQSI7YTowOnt9czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MzA6Imh0dHA6Ly9sb2NhbGhvc3Q6ODAwMC9wcm9qZWN0cyI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1761927588),
-('KAmHRX9I6QQJl3fTNARLpRMZPGhLmmQYG3U0F7AE', 1, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0', 'YTo1OntzOjY6Il90b2tlbiI7czo0MDoiSm5rZzZBVVBCdUV5UjJ6RUxVYWlNcDI4dE56bXR1TU1BNmFZZGw5OSI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MzA6Imh0dHA6Ly9sb2NhbGhvc3Q6ODAwMC9wcm9qZWN0cyI7fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjE7czoyMjoiUEhQREVCVUdCQVJfU1RBQ0tfREFUQSI7YTowOnt9fQ==', 1761927748);
+('FndkWUsb1OCIGDtR0LiHtN85FpXZmgB5seIyou1P', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiZUFRTUg5N0FpQ29MM3c4Y3FsN0g5aFlPOHd4UmhBQnp3bVo5YXdmViI7czozOiJ1cmwiO2E6MTp7czo4OiJpbnRlbmRlZCI7czozMToiaHR0cDovLzEyNy4wLjAuMTo4MDAwL2Rhc2hib2FyZCI7fXM6OToiX3ByZXZpb3VzIjthOjE6e3M6MzoidXJsIjtzOjMxOiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvZGFzaGJvYXJkIjt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319fQ==', 1762090560),
+('KZHG7ODBuymHNPA4uuhmsRzIyFAJ69xyJrdAsrul', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiSmFDdllLNnFvN2hMODlhS245TjFTSDlzY1BaZmdiQmdXVlRqZEdORSI7czoyMjoiUEhQREVCVUdCQVJfU1RBQ0tfREFUQSI7YTowOnt9czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9sb2dpbiI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1762090561),
+('nS9bClucEfTgp4Q9rlGHkQlyOw9avrev5K2DKKOE', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiZndMOFpVVGE4ZUJGQTFQUTZxbEVvZEhSYjVZSHk3ZDN5RkxZNG1IcSI7czoyMjoiUEhQREVCVUdCQVJfU1RBQ0tfREFUQSI7YToxOntzOjI2OiIwMUs5MkU3OVdDR0NCQUpTV0ozQ1dXTjVHNCI7Tjt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMCI7fX0=', 1762092394),
+('PRcELPtsLicwp5lA7r44rMbb1dHUKXrkiMh1ISNK', 1, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0', 'YTo1OntzOjY6Il90b2tlbiI7czo0MDoib0g2c0hXSnh4c1dhZmw2bFNRMlpFVnhBVnMxVUVOVDF4djJJQ1YxWiI7czozOiJ1cmwiO2E6MDp7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjE7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly9sb2NhbGhvc3Q6ODAwMCI7fX0=', 1762092559),
+('xAeQgMlbVYFBT6zmloEaxw1ofQ6CTEMDaUxkUSy4', 1, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiVjNLS1A4V0VaY3RRVWtpV3luWEFDWUNmeVhmUEM5NHExUG14S0RXRSI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MzA6Imh0dHA6Ly9sb2NhbGhvc3Q6ODAwMC9wcm9qZWN0cyI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjE7fQ==', 1762081518);
 
 -- --------------------------------------------------------
 
@@ -413,18 +425,20 @@ CREATE TABLE `users` (
   `two_factor_confirmed_at` timestamp NULL DEFAULT NULL,
   `remember_token` varchar(100) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `company_id` bigint(20) UNSIGNED DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `name`, `email`, `email_verified_at`, `password`, `two_factor_secret`, `two_factor_recovery_codes`, `two_factor_confirmed_at`, `remember_token`, `created_at`, `updated_at`) VALUES
-(1, 'joyal', 'joyal@gmail.com', NULL, '$2y$12$wN.bIo9WhiJOlH6Lyjv5HeSKnJt5T2aEQpi71tEVsFZcWBSVKWMLW', NULL, NULL, NULL, NULL, '2025-10-21 09:47:09', '2025-10-21 09:47:09'),
-(2, 'joyal123', 'joyal123@gmail.com', NULL, '$2y$12$J2iHMaj8RHVzseesNoiJDuc0PnYn0/wJhK161zTjvPAyBCefSOr5y', NULL, NULL, NULL, NULL, '2025-10-29 09:50:33', '2025-10-29 09:50:33'),
-(3, 'test', 'test@gmail.com', NULL, '$2y$12$BH.vo7VkCpHT9m6TCJaLUejznxv4OMxUW8fbSX6wLoN20BbH6vdNC', NULL, NULL, NULL, NULL, '2025-10-29 09:51:29', '2025-10-29 09:51:29'),
-(4, 'Admin User', 'admin@example.com', NULL, '$2y$12$qnQRn.Qv/l50FjVI81EKAeZ/oQXjzA2M./MBbEFH6xXcfOpQ1Od4m', NULL, NULL, NULL, NULL, '2025-10-30 11:49:56', '2025-10-30 11:49:56');
+INSERT INTO `users` (`id`, `name`, `email`, `email_verified_at`, `password`, `two_factor_secret`, `two_factor_recovery_codes`, `two_factor_confirmed_at`, `remember_token`, `created_at`, `updated_at`, `company_id`) VALUES
+(1, 'joyal', 'joyal@gmail.com', NULL, '$2y$12$wN.bIo9WhiJOlH6Lyjv5HeSKnJt5T2aEQpi71tEVsFZcWBSVKWMLW', NULL, NULL, NULL, NULL, '2025-10-21 09:47:09', '2025-10-21 09:47:09', NULL),
+(2, 'joyal123', 'joyal123@gmail.com', NULL, '$2y$12$J2iHMaj8RHVzseesNoiJDuc0PnYn0/wJhK161zTjvPAyBCefSOr5y', NULL, NULL, NULL, NULL, '2025-10-29 09:50:33', '2025-10-29 09:50:33', NULL),
+(3, 'test', 'test@gmail.com', NULL, '$2y$12$BH.vo7VkCpHT9m6TCJaLUejznxv4OMxUW8fbSX6wLoN20BbH6vdNC', NULL, NULL, NULL, NULL, '2025-10-29 09:51:29', '2025-10-29 09:51:29', NULL),
+(4, 'Admin User', 'admin@example.com', NULL, '$2y$12$qnQRn.Qv/l50FjVI81EKAeZ/oQXjzA2M./MBbEFH6xXcfOpQ1Od4m', NULL, NULL, NULL, NULL, '2025-10-30 11:49:56', '2025-10-30 11:49:56', NULL),
+(5, 'Jerry', 'jerry@gmail.com', NULL, '$2y$12$mw0Dp/m50qNmcActSzuQJevn561LnrK9StUGL4.WtpaRjQDJ/Hz86', NULL, NULL, NULL, NULL, '2025-11-02 02:23:42', '2025-11-02 02:23:42', NULL);
 
 --
 -- Indexes for dumped tables
@@ -536,7 +550,8 @@ ALTER TABLE `tasks`
 --
 ALTER TABLE `users`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `users_email_unique` (`email`);
+  ADD UNIQUE KEY `users_email_unique` (`email`),
+  ADD KEY `users_company_id_foreign` (`company_id`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -546,7 +561,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `companies`
 --
 ALTER TABLE `companies`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `company_user`
@@ -576,7 +591,7 @@ ALTER TABLE `jobs`
 -- AUTO_INCREMENT for table `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `projects`
@@ -588,7 +603,7 @@ ALTER TABLE `projects`
 -- AUTO_INCREMENT for table `project_user`
 --
 ALTER TABLE `project_user`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT for table `tasks`
@@ -600,7 +615,7 @@ ALTER TABLE `tasks`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- Constraints for dumped tables
@@ -632,6 +647,12 @@ ALTER TABLE `project_user`
 --
 ALTER TABLE `tasks`
   ADD CONSTRAINT `tasks_project_id_foreign` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `users`
+--
+ALTER TABLE `users`
+  ADD CONSTRAINT `users_company_id_foreign` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE SET NULL;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
